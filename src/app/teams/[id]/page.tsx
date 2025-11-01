@@ -183,7 +183,7 @@ export default function TeamDetail({ params }: { params: { id: string } }) {
           <div className="p-4 bg-[#071127] rounded">
             <h3 className="mb-2">Members</h3>
             {members.length === 0 ? (
-              <p className="text-(--muted)">No members yet.</p>
+              <p className="text-gray-400">No members yet.</p>
             ) : (
               members.map((m) => (
                 <div
@@ -191,7 +191,7 @@ export default function TeamDetail({ params }: { params: { id: string } }) {
                   className="py-2 border-b border-[#0b1228] flex justify-between"
                 >
                   <div>{m.profiles.username ?? m.profiles.email}</div>
-                  <div className="text-sm text-(--muted)">{m.role}</div>
+                  <div className="text-sm text-gray-400">{m.role}</div>
                 </div>
               ))
             )}
@@ -226,7 +226,7 @@ export default function TeamDetail({ params }: { params: { id: string } }) {
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="font-semibold">{t.title}</div>
-                      <div className="text-sm text-(--muted)">{t.description}</div>
+                      <div className="text-sm text-gray-400">{t.description}</div>
                       <div className="text-xs mt-1">Assignee: {t.assignee ?? 'Unassigned'}</div>
                     </div>
                     <div className="text-sm">{t.progress}%</div>
@@ -258,7 +258,7 @@ export default function TeamDetail({ params }: { params: { id: string } }) {
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="font-semibold">{t.title}</div>
-                      <div className="text-sm text-(--muted)">{t.description}</div>
+                      <div className="text-sm text-gray-400">{t.description}</div>
                       <div className="text-xs mt-1">Assignee: {t.assignee ?? 'Unassigned'}</div>
                     </div>
                     <div className="text-sm">{t.progress}%</div>
@@ -290,7 +290,7 @@ export default function TeamDetail({ params }: { params: { id: string } }) {
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="font-semibold">{t.title}</div>
-                      <div className="text-sm text-(--muted)">{t.description}</div>
+                      <div className="text-sm text-gray-400">{t.description}</div>
                       <div className="text-xs mt-1">Assignee: {t.assignee ?? 'Unassigned'}</div>
                     </div>
                     <div className="text-sm">{t.progress}%</div>

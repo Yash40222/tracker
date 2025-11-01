@@ -40,7 +40,7 @@ export default function TeamsPage() {
 
         <div className="grid grid-cols-3 gap-4">
           {teams.length === 0 && (
-            <div className="text-(--muted)">No teams yet</div>
+            <div className="text-gray-400">No teams yet</div>
           )}
           {teams.map((t: any) => (
             <Link
@@ -49,7 +49,7 @@ export default function TeamsPage() {
               className="block p-4 rounded bg-[#071127] hover:bg-[#0d1a3a] transition"
             >
               <div className="font-semibold">{t.name}</div>
-              <div className="text-sm text-(--muted)">{t.description}</div>
+              <div className="text-sm text-gray-400">{t.description}</div>
             </Link>
           ))}
         </div>
