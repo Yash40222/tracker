@@ -208,9 +208,12 @@ export default function TeamDetail({ params }: { params: { id: string } }) {
         {openCreate && (
           <CreateTaskModal
             onClose={() => setOpenCreate(false)}
-            onCreate={(title: string, description: string) => {
+            // Pass the resolved team UUID so tasks are created for this team
+            teamId={hashedTeamId}
+            // After creation, just reload tasks; creation happens inside the modal
+            onCreate={() => {
               setOpenCreate(false);
-              handleCreateTeamTask(title, description);
+              loadTeam();
             }}
           />
         )}

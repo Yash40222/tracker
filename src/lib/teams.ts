@@ -137,7 +137,7 @@ export async function declineTeamInvite(inviteId: string, userId: string) {
 export async function fetchTeamMembers(teamId: string) {
   const { data, error } = await supabase
     .from("team_members")
-    .select("member_id, role, profiles(username, full_name)")
+    .select("member_id, role, profiles(username, email)")
     .eq("team_id", teamId.toString());
 
   if (error) throw error;
