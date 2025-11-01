@@ -7,4 +7,11 @@ if (!url || !anon) {
   throw new Error('Missing Supabase env vars. Check .env.local');
 }
 
-export const supabase = createClient(url, anon);
+export const supabase = createClient(url, anon, {
+  auth: {
+    persistSession: true,
+    storageKey: 'tracker-auth-storage',
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+});

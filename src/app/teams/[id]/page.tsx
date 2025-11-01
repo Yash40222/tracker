@@ -151,8 +151,14 @@ export default function TeamDetail({ params }: { params: { id: string } }) {
     await loadTeam();
   }
 
-  async function handleAssign(taskId: string, memberId: string) {
-    await supabase.from('tasks').update({ assignee: memberId }).eq('id', taskId);
+  async function handleAssign(taskId: string, value: string) {
+    // If value is empty string, delete the task
+    if (value === '') {
+      await supabase.from('tasks').delete().eq('id', taskId);
+    } else {
+      // Otherwise update the progress
+      await supabase.from('tasks').update({ progress: parseInt(value) }).eq('id', taskId);
+    }
     loadTeam();
   }
 
@@ -178,7 +184,7 @@ export default function TeamDetail({ params }: { params: { id: string } }) {
           </form>
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {/* Members Section */}
           <div className="p-4 bg-[#071127] rounded">
             <h3 className="mb-2">Members</h3>
@@ -190,7 +196,7 @@ export default function TeamDetail({ params }: { params: { id: string } }) {
                   key={m.member_id}
                   className="py-2 border-b border-[#0b1228] flex justify-between"
                 >
-                  <div>{m.profiles.username ?? m.profiles.email}</div>
+                  <div className="truncate max-w-[60%]">{m.profiles.username ?? m.profiles.email}</div>
                   <div className="text-sm text-gray-400">{m.role}</div>
                 </div>
               ))
@@ -217,22 +223,21 @@ export default function TeamDetail({ params }: { params: { id: string } }) {
             }}
           />
         )}
-        <div className="grid grid-cols-3 gap-4 mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
           {/* To Do */}
           <div>
             <h3 className="mb-3 font-semibold">To Do</h3>
-            <div className="bg-[#071127] p-3 rounded min-h-[300px]">
+            <div className="bg-[#071127] p-3 rounded min-h-[200px] md:min-h-[300px]">
               {/* --- FIX 4: Compare task's team_id to the HASHED ID --- */}
               {tasks.filter(t => t.status === 'todo' && String(t.team_id) === String(hashedTeamId)).map(t => (
                 <div key={t.id} className="p-3 rounded bg-[#0b1228] mb-3">
-                  {/* ... (Rest of your task card) ... */}
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="font-semibold">{t.title}</div>
-                      <div className="text-sm text-gray-400">{t.description}</div>
+                  <div className="flex flex-col sm:flex-row justify-between items-start">
+                    <div className="w-full sm:w-auto mb-2 sm:mb-0">
+                      <div className="font-semibold truncate">{t.title}</div>
+                      <div className="text-sm text-gray-400 line-clamp-2">{t.description}</div>
                       <div className="text-xs mt-1">Assignee: {t.assignee ?? 'Unassigned'}</div>
                     </div>
-                    <div className="text-sm">{t.progress}%</div>
+                    <div className="text-sm self-end sm:self-start">{t.progress}%</div>
                   </div>
                   <div className="mt-3 flex items-center gap-2">
                     <input
@@ -253,18 +258,17 @@ export default function TeamDetail({ params }: { params: { id: string } }) {
           {/* In Progress */}
           <div>
             <h3 className="mb-3 font-semibold">In Progress</h3>
-            <div className="bg-[#071127] p-3 rounded min-h-[300px]">
+            <div className="bg-[#071127] p-3 rounded min-h-[200px] md:min-h-[300px]">
               {/* --- FIX 5: Compare task's team_id to the HASHED ID --- */}
               {tasks.filter(t => t.status === 'inprogress' && String(t.team_id) === String(hashedTeamId)).map(t => (
                 <div key={t.id} className="p-3 rounded bg-[#0b1228] mb-3">
-                  {/* ... (Rest of your task card) ... */}
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="font-semibold">{t.title}</div>
-                      <div className="text-sm text-gray-400">{t.description}</div>
+                  <div className="flex flex-col sm:flex-row justify-between items-start">
+                    <div className="w-full sm:w-auto mb-2 sm:mb-0">
+                      <div className="font-semibold truncate">{t.title}</div>
+                      <div className="text-sm text-gray-400 line-clamp-2">{t.description}</div>
                       <div className="text-xs mt-1">Assignee: {t.assignee ?? 'Unassigned'}</div>
                     </div>
-                    <div className="text-sm">{t.progress}%</div>
+                    <div className="text-sm self-end sm:self-start">{t.progress}%</div>
                   </div>
                   <div className="mt-3 flex items-center gap-2">
                     <input
@@ -283,20 +287,19 @@ export default function TeamDetail({ params }: { params: { id: string } }) {
           </div>
 
           {/* Completed */}
-          <div>
+          <div className="md:col-span-2 lg:col-span-1">
             <h3 className="mb-3 font-semibold">Completed</h3>
-            <div className="bg-[#071127] p-3 rounded min-h-[300px]">
+            <div className="bg-[#071127] p-3 rounded min-h-[200px] md:min-h-[300px]">
               {/* --- FIX 6: Compare task's team_id to the HASHED ID --- */}
               {tasks.filter(t => t.status === 'completed' && String(t.team_id) === String(hashedTeamId)).map(t => (
                 <div key={t.id} className="p-3 rounded bg-[#0b1228] mb-3">
-                  {/* ... (Rest of your task card) ... */}
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="font-semibold">{t.title}</div>
-                      <div className="text-sm text-gray-400">{t.description}</div>
+                  <div className="flex flex-col sm:flex-row justify-between items-start">
+                    <div className="w-full sm:w-auto mb-2 sm:mb-0">
+                      <div className="font-semibold truncate">{t.title}</div>
+                      <div className="text-sm text-gray-400 line-clamp-2">{t.description}</div>
                       <div className="text-xs mt-1">Assignee: {t.assignee ?? 'Unassigned'}</div>
                     </div>
-                    <div className="text-sm">{t.progress}%</div>
+                    <div className="text-sm self-end sm:self-start">{t.progress}%</div>
                   </div>
                   <div className="mt-3 flex items-center gap-2">
                     <input

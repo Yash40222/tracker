@@ -60,10 +60,10 @@ export default function DashboardPage() {
           <button onClick={()=>setOpenCreate(true)} className="px-4 py-2 rounded bg-(--accent)">Create Task</button>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <h3 className="mb-3 font-semibold">To Do</h3>
-            <div className="bg-[#071127] p-3 rounded min-h-[300px]">
+            <div className="bg-[#071127] p-3 rounded min-h-[200px] md:min-h-[300px]">
               {tasks.filter(t=>t.status==='todo').map(t => (
                 <TaskCard key={t.id} task={t} onProgress={handleProgress} onDelete={handleDelete} />
               ))}
@@ -72,16 +72,16 @@ export default function DashboardPage() {
 
           <div>
             <h3 className="mb-3 font-semibold">In Progress</h3>
-            <div className="bg-[#071127] p-3 rounded min-h-[300px]">
+            <div className="bg-[#071127] p-3 rounded min-h-[200px] md:min-h-[300px]">
               {tasks.filter(t=>t.status==='inprogress').map(t => (
                 <TaskCard key={t.id} task={t} onProgress={handleProgress} onDelete={handleDelete} />
               ))}
             </div>
           </div>
 
-          <div>
+          <div className="md:col-span-2 lg:col-span-1">
             <h3 className="mb-3 font-semibold">Completed</h3>
-            <div className="bg-[#071127] p-3 rounded min-h-[300px]">
+            <div className="bg-[#071127] p-3 rounded min-h-[200px] md:min-h-[300px]">
               {tasks.filter(t=>t.status==='completed').map(t => (
                 <TaskCard key={t.id} task={t} onProgress={handleProgress} onDelete={handleDelete} />
               ))}
