@@ -30,8 +30,8 @@ export default function TaskCard({
   
   return (
   <div className="p-4 rounded-lg bg-linear-to-br from-[#0b1228] to-[#0f1a33] mb-4 shadow-lg border border-[#1a2942] transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5">
-      <div className="flex justify-between items-start">
-        <div className="flex-1">
+      <div className="flex flex-col sm:flex-row justify-between items-start">
+        <div className="flex-1 w-full sm:w-auto mb-2 sm:mb-0">
           <div className="font-semibold text-lg text-white">{task.title}</div>
           <div className="text-sm text-gray-300 mt-1">{task.description}</div>
           <div className="text-xs mt-2 flex items-center">
@@ -39,7 +39,7 @@ export default function TaskCard({
             <span className="text-blue-200">{task.assignee ?? 'Unassigned'}</span>
           </div>
         </div>
-        <div className="text-sm font-medium bg-blue-600 px-2 py-1 rounded-full text-white">
+        <div className="text-sm font-medium bg-blue-600 px-2 py-1 rounded-full text-white self-end sm:self-start">
           {task.progress}%
         </div>
       </div>

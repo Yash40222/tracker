@@ -56,9 +56,9 @@ export default function CreateTaskModal({ onClose, onCreate, teamId }:{ onClose:
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/70 z-50 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/70 z-50 backdrop-blur-sm animate-fadeIn p-4">
       <div 
-  className="w-full max-w-md bg-linear-to-b from-[#0f1a33] to-[#0b1228] p-6 rounded-lg shadow-2xl border border-[#1a2942] transform transition-all duration-300 animate-slideIn"
+        className="w-full max-w-md bg-linear-to-b from-[#0f1a33] to-[#0b1228] p-4 sm:p-6 rounded-lg shadow-2xl border border-[#1a2942] transform transition-all duration-300 animate-slideIn"
         onClick={(e) => e.stopPropagation()}
       >
         <form onSubmit={handleSubmit} className="space-y-4">

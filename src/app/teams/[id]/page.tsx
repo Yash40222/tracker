@@ -283,7 +283,101 @@ export default function TeamDetail({ params }: { params: { id: string } }) {
              }}
            />
          )}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+        {/* Mobile Layout - Stacked columns */}
+        <div className="md:hidden flex flex-col gap-6 mt-6">
+          {/* To Do */}
+          <div>
+            <h3 className="mb-3 font-semibold">To Do</h3>
+            <div className="bg-[#071127] p-3 rounded min-h-[200px]">
+              {tasks.filter(t => t.status === 'todo' && String(t.team_id) === String(hashedTeamId)).map(t => (
+                <div key={t.id} className="p-3 rounded bg-[#0b1228] mb-3">
+                  <div className="flex flex-col justify-between items-start">
+                    <div className="w-full mb-2">
+                      <div className="font-semibold truncate">{t.title}</div>
+                      <div className="text-sm text-gray-400 line-clamp-2">{t.description}</div>
+                      <div className="text-xs mt-1">Assignee: {t.assignee ?? 'Unassigned'}</div>
+                    </div>
+                    <div className="text-sm self-end">{t.progress}%</div>
+                  </div>
+                  <div className="mt-3 flex items-center gap-2">
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      value={t.progress}
+                      onChange={(e) => handleAssign(t.id, e.target.value)}
+                      className="w-full"
+                    />
+                    <button onClick={() => handleAssign(t.id, '')} title="Delete" className="p-2 rounded hover:bg-[#111827]">🗑</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* In Progress */}
+          <div>
+            <h3 className="mb-3 font-semibold">In Progress</h3>
+            <div className="bg-[#071127] p-3 rounded min-h-[200px]">
+              {tasks.filter(t => t.status === 'inprogress' && String(t.team_id) === String(hashedTeamId)).map(t => (
+                <div key={t.id} className="p-3 rounded bg-[#0b1228] mb-3">
+                  <div className="flex flex-col justify-between items-start">
+                    <div className="w-full mb-2">
+                      <div className="font-semibold truncate">{t.title}</div>
+                      <div className="text-sm text-gray-400 line-clamp-2">{t.description}</div>
+                      <div className="text-xs mt-1">Assignee: {t.assignee ?? 'Unassigned'}</div>
+                    </div>
+                    <div className="text-sm self-end">{t.progress}%</div>
+                  </div>
+                  <div className="mt-3 flex items-center gap-2">
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      value={t.progress}
+                      onChange={(e) => handleAssign(t.id, e.target.value)}
+                      className="w-full"
+                    />
+                    <button onClick={() => handleAssign(t.id, '')} title="Delete" className="p-2 rounded hover:bg-[#111827]">🗑</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Completed */}
+          <div>
+            <h3 className="mb-3 font-semibold">Completed</h3>
+            <div className="bg-[#071127] p-3 rounded min-h-[200px]">
+              {tasks.filter(t => t.status === 'completed' && String(t.team_id) === String(hashedTeamId)).map(t => (
+                <div key={t.id} className="p-3 rounded bg-[#0b1228] mb-3">
+                  <div className="flex flex-col justify-between items-start">
+                    <div className="w-full mb-2">
+                      <div className="font-semibold truncate">{t.title}</div>
+                      <div className="text-sm text-gray-400 line-clamp-2">{t.description}</div>
+                      <div className="text-xs mt-1">Assignee: {t.assignee ?? 'Unassigned'}</div>
+                    </div>
+                    <div className="text-sm self-end">{t.progress}%</div>
+                  </div>
+                  <div className="mt-3 flex items-center gap-2">
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      value={t.progress}
+                      onChange={(e) => handleAssign(t.id, e.target.value)}
+                      className="w-full"
+                    />
+                    <button onClick={() => handleAssign(t.id, '')} title="Delete" className="p-2 rounded hover:bg-[#111827]">🗑</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        {/* Desktop Layout */}
+        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
           {/* To Do */}
           <div>
             <h3 className="mb-3 font-semibold">To Do</h3>
