@@ -157,3 +157,81 @@ export async function fetchPendingInvites(userId: string) {
   if (error) throw error;
   return data ?? [];
 }
+
+/**
+ * 🚪 Leave a team (remove user from team members).
+ */
+export async function leaveTeam(teamId: string, userId: string) {
+  // Check if user is the owner
+  const { data: team } = await supabase
+    .from("teams")
+    .select("owner")
+    .eq("id", teamId)
+    .single();
+  
+  if (team?.owner === userId) {
+    throw new Error("Team owner cannot leave the team. Transfer ownership first or delete the team.");
+  }
+
+  // Remove user from team_members
+  const { error } = await supabase
+    .from("team_members")
+    .delete()
+    .eq("team_id", teamId)
+    .eq("member_id", userId);
+
+  if (error) throw error;
+  return "You have left the team.";
+}
+
+/**
+ * 👑 Transfer team ownership to another team member.
+ */
+export async function transferTeamOwnership(teamId: string, currentOwnerId: string, newOwnerId: string) {
+  // Verify current user is the owner
+  const { data: team } = await supabase
+    .from("teams")
+    .select("owner")
+    .eq("id", teamId)
+    .single();
+  
+  if (!team) throw new Error("Team not found.");
+  if (team.owner !== currentOwnerId) throw new Error("Only the team owner can transfer ownership.");
+  
+  // Verify new owner is a team member
+  const { data: memberCheck } = await supabase
+    .from("team_members")
+    .select("member_id")
+    .eq("team_id", teamId)
+    .eq("member_id", newOwnerId)
+    .single();
+    
+  if (!memberCheck) throw new Error("The selected user is not a member of this team.");
+  
+  // Update team owner
+  const { error: updateTeamError } = await supabase
+    .from("teams")
+    .update({ owner: newOwnerId })
+    .eq("id", teamId);
+    
+  if (updateTeamError) throw updateTeamError;
+  
+  // Update roles in team_members
+  const { error: updateOldOwnerError } = await supabase
+    .from("team_members")
+    .update({ role: "member" })
+    .eq("team_id", teamId)
+    .eq("member_id", currentOwnerId);
+    
+  if (updateOldOwnerError) throw updateOldOwnerError;
+  
+  const { error: updateNewOwnerError } = await supabase
+    .from("team_members")
+    .update({ role: "owner" })
+    .eq("team_id", teamId)
+    .eq("member_id", newOwnerId);
+    
+  if (updateNewOwnerError) throw updateNewOwnerError;
+  
+  return "Team ownership transferred successfully.";
+}

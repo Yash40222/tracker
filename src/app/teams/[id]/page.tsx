@@ -3,8 +3,9 @@ import Navbar from '../../../components/Navbar';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import CreateTaskModal from '../../../components/CreateTaskModal';
+import TransferOwnershipModal from '../../../components/TransferOwnershipModal';
 import React from 'react';
-import { fetchTeamById, fetchTeamMembers, inviteUserToTeam } from '../../../lib/teams';
+import { fetchTeamById, fetchTeamMembers, inviteUserToTeam, leaveTeam } from '../../../lib/teams';
 import { supabase } from '../../../lib/supabaseClient';
 import { Task } from '../../../types/task';
 
@@ -41,6 +42,8 @@ export default function TeamDetail({ params }: { params: { id: string } }) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [usernameToAdd, setUsernameToAdd] = useState('');
   const [openCreate, setOpenCreate] = useState(false);
+  const [openTransferOwnership, setOpenTransferOwnership] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   // --- FIX 1: Get the correct HASHED ID for queries ---
   // This is the ID your app uses for tasks and invites.
@@ -49,6 +52,13 @@ export default function TeamDetail({ params }: { params: { id: string } }) {
   useEffect(() => {
     if (!teamId) return;
     loadTeam();
+    
+    // Get current user
+    async function getCurrentUser() {
+      const { data } = await supabase.auth.getUser();
+      setCurrentUser(data.user);
+    }
+    getCurrentUser();
 
     const channel = supabase
       .channel(`team-${teamId}`)
@@ -161,6 +171,22 @@ export default function TeamDetail({ params }: { params: { id: string } }) {
     }
     loadTeam();
   }
+  
+  async function handleLeaveTeam() {
+    if (!confirm('Are you sure you want to leave this team?')) return;
+    
+    try {
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) return alert('Not logged in.');
+      
+      await leaveTeam(hashedTeamId, user.id);
+      alert('You have left the team.');
+      router.push('/teams');
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || 'Failed to leave team.');
+    }
+  }
 
   return (
     <>
@@ -169,19 +195,42 @@ export default function TeamDetail({ params }: { params: { id: string } }) {
         {/* ... (Your members and create task sections are fine) ... */}
         <h1 className="text-2xl mb-3">{team?.name || 'Loading team...'}</h1>
 
-        {/* 🔹 Send Invite Form */}
-        <div className="mb-4">
-          <form onSubmit={handleSendInvite} className="flex gap-2">
-            <input
-              value={usernameToAdd}
-              onChange={(e) => setUsernameToAdd(e.target.value)}
-              placeholder="Enter username to invite"
-              className="p-2 bg-[#0b1228] rounded w-full"
-            />
-            <button className="px-3 py-1 rounded bg-(--accent) text-white">
-              Send Invite
+        {/* Team Actions */}
+        <div className="flex justify-between items-center mb-4">
+          {/* 🔹 Send Invite Form */}
+          <div className="flex-grow">
+            <form onSubmit={handleSendInvite} className="flex gap-2">
+              <input
+                value={usernameToAdd}
+                onChange={(e) => setUsernameToAdd(e.target.value)}
+                placeholder="Enter username to invite"
+                className="p-2 bg-[#0b1228] rounded w-full"
+              />
+              <button className="px-3 py-1 rounded bg-(--accent) text-white">
+                Send Invite
+              </button>
+            </form>
+          </div>
+          
+          <div className="flex">
+            {/* Transfer Ownership Button - Only show if user is owner */}
+            {members.some(m => m.member_id === currentUser?.id && m.role === 'owner') && (
+              <button 
+                onClick={() => setOpenTransferOwnership(true)}
+                className="px-3 py-1 ml-2 rounded bg-yellow-600 hover:bg-yellow-700 text-white"
+              >
+                Transfer Ownership
+              </button>
+            )}
+            
+            {/* Leave Team Button */}
+            <button 
+              onClick={handleLeaveTeam}
+              className="px-3 py-1 ml-2 rounded bg-red-600 hover:bg-red-700 text-white"
+            >
+              Leave Team
             </button>
-          </form>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -223,6 +272,17 @@ export default function TeamDetail({ params }: { params: { id: string } }) {
             }}
           />
         )}
+        {openTransferOwnership && (
+           <TransferOwnershipModal
+             onClose={() => setOpenTransferOwnership(false)}
+             teamId={hashedTeamId}
+             members={members}
+             onTransferred={() => {
+               setOpenTransferOwnership(false);
+               loadTeam();
+             }}
+           />
+         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
           {/* To Do */}
           <div>
