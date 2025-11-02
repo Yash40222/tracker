@@ -8,41 +8,53 @@ export default function useUser() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function load() {
+    let isMounted = true;
+
+    const loadUser = async () => {
       try {
-        // Get the session from localStorage first
         const { data: { session } } = await supabase.auth.getSession();
-        
+
         if (session?.user) {
-          // If we have a session, load the user profile
-          const { data: pr } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
-          setUser(pr ?? null);
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .maybeSingle();
+
+          if (error) console.error('Error fetching profile:', error);
+          if (isMounted) setUser(profile ?? null);
         } else {
-          setUser(null);
+          if (isMounted) setUser(null);
         }
       } catch (error) {
-        console.error("Error loading user session:", error);
+        console.error('Error loading user session:', error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
-    }
-    
-    // Load the initial session
-    load();
-    
-    // Listen for auth changes
-    const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        if (session?.user) {
-          const { data: pr } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
-          setUser(pr ?? null);
-        }
-      } else if (event === 'SIGNED_OUT') {
+    };
+
+    // Initial load
+    loadUser();
+
+    // Listen for auth changes (login/logout/token refresh)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) return;
+      if (session?.user) {
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .maybeSingle()
+          .then(({ data }) => setUser(data ?? null));
+      } else {
         setUser(null);
       }
     });
-    
-    return () => data.subscription.unsubscribe();
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   return { user, loading };
