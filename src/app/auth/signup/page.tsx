@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { signUp } from '../../../lib/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '../../../components/shared/AuthProvider';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -10,16 +11,24 @@ export default function SignupPage() {
   const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { refreshSession } = useAuth();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signUp(email, password, username || undefined);
-      alert('Account created! Check email if you require confirmation.');
-      router.push('/dashboard');
+      const result = await signUp(email, password, username || undefined);
+      if (result) {
+        // Force refresh the session to ensure we have the latest user data
+        await refreshSession();
+        // Use window.location for navigation instead of Next.js router to avoid ERR_ABORTED
+        window.location.href = '/dashboard';
+      } else {
+        alert('Account created! Check email if you require confirmation.');
+      }
     } catch (err: any) {
       alert(err.message || 'Signup failed');
+    } finally {
       setIsLoading(false);
     }
   }

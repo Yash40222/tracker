@@ -3,21 +3,29 @@ import { useState } from 'react';
 import { signIn } from '../../../lib/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '../../../components/shared/AuthProvider';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { refreshSession } = useAuth();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signIn(email, password);
-      router.push('/dashboard');
+      const result = await signIn(email, password);
+      if (result) {
+        // Force refresh the session to ensure we have the latest user data
+        await refreshSession();
+        // Use window.location for navigation instead of Next.js router to avoid ERR_ABORTED
+        window.location.href = '/dashboard';
+      }
     } catch (err: any) {
       alert(err.message || 'Login failed');
+    } finally {
       setIsLoading(false);
     }
   }
