@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
-import useUser from '@/hooks/useUser';
+import { useAuth } from '@/components/AuthProvider';
 import { fetchPersonalTasks, updateTaskProgress, deleteTask } from '@/lib/tasks';
 import TaskCard from '@/components/TaskCard';
 import CreateTaskModal from '@/components/CreateTaskModal';
@@ -9,7 +9,7 @@ import { Task } from '@/types/task';
 import { supabase } from '@/lib/supabaseClient';
 
 export default function DashboardPage() {
-  const { user, loading } = useUser();
+  const { user, loading } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [openCreate, setOpenCreate] = useState(false);
 

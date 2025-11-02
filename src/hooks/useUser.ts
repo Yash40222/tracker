@@ -9,17 +9,22 @@ export default function useUser() {
 
   useEffect(() => {
     async function load() {
-      // Get the session from localStorage first
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session?.user) {
-        // If we have a session, load the user profile
-        const { data: pr } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
-        setUser(pr ?? null);
-      } else {
-        setUser(null);
+      try {
+        // Get the session from localStorage first
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          // If we have a session, load the user profile
+          const { data: pr } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
+          setUser(pr ?? null);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Error loading user session:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     
     // Load the initial session
@@ -27,10 +32,12 @@ export default function useUser() {
     
     // Listen for auth changes
     const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        const { data: pr } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
-        setUser(pr ?? null);
-      } else {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if (session?.user) {
+          const { data: pr } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
+          setUser(pr ?? null);
+        }
+      } else if (event === 'SIGNED_OUT') {
         setUser(null);
       }
     });
